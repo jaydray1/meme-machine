@@ -1,23 +1,19 @@
-const massive = require('massive');
+import massive from 'massive';
+import path from 'path';
 
 let dbPromise;
 
-function connectToDb() {
-    if (dbPromise) return dbPromise;
-    
-    return dbPromise = massive(process.env.DB_CONNECTION_STRING, { scripts: __dirname + '/scripts' })
-        .then(dbInstance => {
-            console.log('Connected to the db');
-    
-            return dbInstance;
-        })
-        .catch(e => {
-            console.error(e);
-            dbPromise = null;
-            throw e;
-        });
-}
+const connectToDb = () => {
+  if (dbPromise) return dbPromise;
 
-module.exports = {
-    connectToDb,
+  dbPromise = massive(process.env.DB_CONNECTION_STRING, { scripts: path.join(__dirname, '/scripts') })
+    .then((dbInstance) => dbInstance)
+    .catch((error) => {
+      dbPromise = null;
+      throw new Error(error);
+    });
+
+  return dbPromise;
 };
+
+module.exports = { connectToDb };
